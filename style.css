@@ -130,15 +130,65 @@ h1 {
     box-shadow: 0 0 15px var(--primary-color);
 }
 
+.lotto-set-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .lotto-set-row {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.lotto-set-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.main-numbers {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.plus-sign {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.bonus-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bonus-container::before {
+    content: 'BONUS';
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+    color: var(--secondary-color);
+}
+
 /* Responsive styles */
 @container (max-width: 600px) {
-    h1 {
-        font-size: 2.5rem;
+    .lotto-set-row {
+        gap: 0.5rem;
+        flex-wrap: wrap;
     }
-
+    
+    .main-numbers {
+        gap: 0.3rem;
+    }
+    
     .lotto-ball {
-        width: 50px;
-        height: 50px;
-        font-size: 1.2rem;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
     }
 }

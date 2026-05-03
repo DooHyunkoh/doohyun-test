@@ -7,12 +7,24 @@ const getNumberColor = (number) => {
     return '#2196F3'; // Blue
 };
 
-const generateNumbers = () => {
+const generateLottoSet = () => {
     const numbers = new Set();
-    while (numbers.size < 6) {
+    while (numbers.size < 7) { // 6 main + 1 bonus
         numbers.add(Math.floor(Math.random() * 45) + 1);
     }
-    return [...numbers].sort((a, b) => a - b);
+    const numbersArray = [...numbers];
+    const mainNumbers = numbersArray.slice(0, 6).sort((a, b) => a - b);
+    const bonusNumber = numbersArray[6];
+    return { mainNumbers, bonusNumber };
+};
+
+const createBallElement = (number, isBonus = false) => {
+    const ball = document.createElement('div');
+    ball.classList.add('lotto-ball');
+    if (isBonus) ball.classList.add('bonus-ball');
+    ball.textContent = number;
+    ball.style.backgroundColor = getNumberColor(number);
+    return ball;
 };
 
 const render = () => {
@@ -20,14 +32,32 @@ const render = () => {
     if (!lottoBallsContainer) return;
     
     lottoBallsContainer.innerHTML = '';
-    const numbers = generateNumbers();
-    numbers.forEach(number => {
-        const ball = document.createElement('div');
-        ball.classList.add('lotto-ball');
-        ball.textContent = number;
-        ball.style.backgroundColor = getNumberColor(number);
-        lottoBallsContainer.appendChild(ball);
-    });
+    
+    for (let i = 0; i < 5; i++) {
+        const setRow = document.createElement('div');
+        setRow.classList.add('lotto-set-row');
+        
+        const { mainNumbers, bonusNumber } = generateLottoSet();
+        
+        const mainContainer = document.createElement('div');
+        mainContainer.classList.add('main-numbers');
+        mainNumbers.forEach(num => {
+            mainContainer.appendChild(createBallElement(num));
+        });
+        
+        const plusSign = document.createElement('span');
+        plusSign.classList.add('plus-sign');
+        plusSign.textContent = '+';
+        
+        const bonusContainer = document.createElement('div');
+        bonusContainer.classList.add('bonus-container');
+        bonusContainer.appendChild(createBallElement(bonusNumber, true));
+        
+        setRow.appendChild(mainContainer);
+        setRow.appendChild(plusSign);
+        setRow.appendChild(bonusContainer);
+        lottoBallsContainer.appendChild(setRow);
+    }
 };
 
 const initTheme = () => {
@@ -52,6 +82,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     initTheme();
-    // Initial render
-    render();
+    // Initial render is removed so numbers only appear on click
 });
