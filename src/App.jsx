@@ -56,8 +56,12 @@ function App() {
   }
 
   const copyAccount = () => {
-    navigator.clipboard.writeText('카카오뱅크 3333-01-1234567')
-    alert('계좌번호가 복사되었습니다! 💸')
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText('카카오뱅크 3333-01-1234567')
+      alert('계좌번호가 복사되었습니다! 💸')
+    } else {
+      alert('계좌번호: 카카오뱅크 3333-01-1234567\n직접 복사해 주세요!')
+    }
   }
 
   return (
