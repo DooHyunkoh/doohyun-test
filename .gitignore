@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-ssr
+*.local
+.vscode
+.idx
+.gemini
+package-lock.json
