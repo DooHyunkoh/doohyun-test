@@ -30,12 +30,28 @@ const render = () => {
     });
 };
 
+const initTheme = () => {
+    const themeToggle = document.querySelector('#theme-toggle');
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const generateButton = document.querySelector('#generate-button');
     if (generateButton) {
         generateButton.addEventListener('click', render);
     }
     
+    initTheme();
     // Initial render
     render();
 });

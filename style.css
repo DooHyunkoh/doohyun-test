@@ -1,19 +1,33 @@
 
 :root {
+    /* Dark Theme (Default) */
     --background-color: #121212;
     --primary-color: #BB86FC;
     --secondary-color: #03DAC6;
     --text-color: #FFFFFF;
     --surface-color: #1E1E1E;
     --error-color: #CF6679;
+    --ball-text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
 
     --font-family-main: 'Roboto', sans-serif;
     --font-size-h1: 3rem;
     --font-size-large: 1.5rem;
     --font-size-medium: 1.2rem;
 
-    --shadow-deep: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-    --shadow-lifted: 0 4px 8px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+    --shadow-deep: 0 10px 20px rgba(0,0,0,0.4);
+    --shadow-lifted: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+[data-theme="light"] {
+    --background-color: #F5F5F5;
+    --primary-color: #6200EE;
+    --secondary-color: #03DAC6;
+    --text-color: #000000;
+    --surface-color: #FFFFFF;
+    --error-color: #B00020;
+    --ball-text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+    --shadow-deep: 0 10px 20px rgba(0,0,0,0.1);
+    --shadow-lifted: 0 4px 8px rgba(0,0,0,0.06);
 }
 
 body {
@@ -23,14 +37,37 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
-                      linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%),
-                      linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.02) 75%);
-    background-size: 20px 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+header {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+#theme-toggle {
+    background: none;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#theme-toggle:hover {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    transform: scale(1.1);
 }
 
 main {
@@ -41,6 +78,7 @@ h1 {
     font-size: var(--font-size-h1);
     color: var(--primary-color);
     text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+    transition: color 0.3s ease;
 }
 
 .generator-container {
@@ -49,6 +87,7 @@ h1 {
     border-radius: 15px;
     box-shadow: var(--shadow-deep);
     container-type: inline-size;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 #lotto-balls-container {
@@ -69,7 +108,7 @@ h1 {
     font-size: var(--font-size-large);
     font-weight: bold;
     color: #fff;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+    text-shadow: var(--ball-text-shadow);
     box-shadow: var(--shadow-lifted);
     transition: all 0.3s ease;
 }
@@ -83,12 +122,12 @@ h1 {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color);
 }
 
 #generate-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-color);
 }
 
 /* Responsive styles */
