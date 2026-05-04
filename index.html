@@ -1,15 +1,242 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 재물복 판독기 - 내 안의 부자 기운 찾기</title>
-  </head>
-  <body>
-    <div id="root" style="color: white; text-align: center; padding-top: 50px;">
-      로딩 중...
-    </div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <!-- React & Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --neon-lime: #ccff00;
+            --purple: #a020f0;
+            --deep-black: #000000;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--deep-black);
+            color: white;
+            font-family: 'Pretendard', sans-serif;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--neon-lime), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 2px dashed var(--neon-lime);
+            border-radius: 20px;
+            padding: 50px 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(204, 255, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        .upload-area:hover {
+            background: rgba(204, 255, 0, 0.1);
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.2);
+        }
+        .preview-container {
+            position: relative;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(160, 32, 240, 0.3);
+        }
+        .preview-image {
+            width: 100%;
+            display: block;
+        }
+        .scanning-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--neon-lime);
+            box-shadow: 0 0 15px var(--neon-lime);
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        .analyzing-text {
+            color: var(--neon-lime);
+            font-weight: bold;
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+        .result-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 24px;
+            padding: 30px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .score-badge {
+            display: inline-block;
+            background: var(--neon-lime);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+        .investment-type {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        .advice {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+        }
+        .btn-primary { background: var(--neon-lime); color: #000; }
+        .btn-secondary { background: var(--purple); color: #fff; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .hidden { display: none; }
+        footer { margin-top: 50px; color: #444; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef } = React;
+
+        const RESULTS = [
+            {
+                type: '주식/코인형 (Aggressive)',
+                score: 95,
+                advice: '당신은 차트를 꿰뚫어 보는 "매의 눈"을 가졌군요. 시장의 변동성을 즐기며 단기 주식 매매나 코인 투자에서 큰 수익을 거둘 관상입니다.',
+            },
+            {
+                type: '부동산/금형 (Stable)',
+                score: 88,
+                advice: '덕망 있고 차분한 인상입니다. 시간이 지날수록 가치가 오르는 자산에 운이 따릅니다. 부동산이나 금과 같은 안정적인 투자처가 제격입니다.',
+            },
+            {
+                type: '자수성가형 (Energetic)',
+                score: 92,
+                advice: '끊임없는 에너지와 도전 정신이 얼굴에 나타나 있습니다. 스스로 기회를 창출하고 사업을 통해 막대한 부를 쌓을 관상입니다.',
+            }
+        ];
+
+        function App() {
+            const [image, setImage] = useState(null);
+            const [isAnalyzing, setIsAnalyzing] = useState(false);
+            const [result, setResult] = useState(null);
+            const fileInputRef = useRef(null);
+            const resultRef = useRef(null);
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        setImage(reader.result);
+                        setIsAnalyzing(true);
+                        setResult(null);
+                        setTimeout(() => {
+                            const random = RESULTS[Math.floor(Math.random() * RESULTS.length)];
+                            setResult({...random, score: random.score + Math.floor(Math.random() * 5)});
+                            setIsAnalyzing(false);
+                        }, 3000);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handleShare = async () => {
+                const canvas = await html2canvas(resultRef.current);
+                const link = document.createElement('a');
+                link.download = 'my-fortune.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            };
+
+            return (
+                <div className="container">
+                    <h1>AI 재물복 판독기</h1>
+                    <p className="subtitle">얼굴 속 부자의 기운을 지금 바로 확인하세요</p>
+
+                    {!image && (
+                        <div className="upload-area" onClick={() => fileInputRef.current.click()}>
+                            <div style={{fontSize: '3rem', marginBottom: '10px'}}>📸</div>
+                            <p>사진을 업로드하여 분석 시작</p>
+                            <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                        </div>
+                    )}
+
+                    {image && !result && (
+                        <div className="preview-container">
+                            <img src={image} className="preview-image" />
+                            {isAnalyzing && <div className="scanning-line"></div>}
+                        </div>
+                    )}
+
+                    {isAnalyzing && <div className="analyzing-text">AI 관상 분석 중...</div>}
+
+                    {result && (
+                        <div ref={resultRef} className="result-card">
+                            <div className="score-badge">재물운: {result.score}점</div>
+                            <div className="investment-type">{result.type}</div>
+                            <p className="advice">{result.advice}</p>
+                            <div className="btn-group">
+                                <button className="btn btn-primary" onClick={handleShare}>결과 저장</button>
+                                <button className="btn btn-secondary" onClick={() => {setImage(null); setResult(null);}}>다시하기</button>
+                            </div>
+                        </div>
+                    )}
+
+                    <footer>© 2026 AI Wealth Fortune Reader.</footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
 </html>
