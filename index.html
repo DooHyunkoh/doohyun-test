@@ -14,23 +14,54 @@
         :root {
             --neon-lime: #ccff00;
             --purple: #a020f0;
-            --deep-black: #000000;
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --card-bg: #111111;
+            --border-color: #333333;
+            --subtitle-color: #888888;
+        }
+        [data-theme='light'] {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --card-bg: #f9f9f9;
+            --border-color: #dddddd;
+            --subtitle-color: #666666;
         }
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--deep-black);
-            color: white;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: 'Pretendard', sans-serif;
             display: flex;
             justify-content: center;
             min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             max-width: 500px;
             width: 100%;
             padding: 40px 20px;
             text-align: center;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 1.2rem;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         h1 {
             font-size: 2.5rem;
@@ -41,7 +72,7 @@
             font-weight: 800;
         }
         .subtitle {
-            color: #888;
+            color: var(--subtitle-color);
             margin-bottom: 30px;
         }
         .upload-area {
@@ -52,6 +83,11 @@
             transition: 0.3s;
             background: rgba(204, 255, 0, 0.05);
             margin-bottom: 20px;
+            position: relative;
+        }
+        .upload-area.drag-over {
+            background: rgba(204, 255, 0, 0.2);
+            transform: scale(1.02);
         }
         .upload-area:hover {
             background: rgba(204, 255, 0, 0.1);
@@ -91,8 +127,8 @@
             letter-spacing: 1px;
         }
         .result-card {
-            background: #111;
-            border: 1px solid #333;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 30px;
             margin-top: 20px;
@@ -114,36 +150,44 @@
             margin-bottom: 15px;
         }
         .advice {
-            color: #ccc;
+            color: var(--subtitle-color);
             line-height: 1.6;
             margin-bottom: 25px;
             font-size: 0.95rem;
         }
         .btn-group {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
         }
         .btn {
-            padding: 12px 24px;
+            padding: 12px 20px;
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
             border: none;
             transition: 0.2s;
+            flex: 1;
+            min-width: 120px;
         }
         .btn-primary { background: var(--neon-lime); color: #000; }
         .btn-secondary { background: var(--purple); color: #fff; }
+        .btn-outline { 
+            background: transparent; 
+            border: 1px solid var(--border-color); 
+            color: var(--text-color); 
+        }
         .btn:hover { transform: translateY(-2px); opacity: 0.9; }
         .hidden { display: none; }
-        footer { margin-top: 50px; color: #444; font-size: 0.8rem; }
+        footer { margin-top: 50px; color: #888; font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useRef } = React;
+        const { useState, useRef, useEffect } = React;
 
         const RESULTS = [
             {
@@ -167,12 +211,17 @@
             const [image, setImage] = useState(null);
             const [isAnalyzing, setIsAnalyzing] = useState(false);
             const [result, setResult] = useState(null);
+            const [theme, setTheme] = useState('dark');
+            const [isDragging, setIsDragging] = useState(false);
             const fileInputRef = useRef(null);
             const resultRef = useRef(null);
 
-            const handleImageUpload = (e) => {
-                const file = e.target.files[0];
-                if (file) {
+            useEffect(() => {
+                document.documentElement.setAttribute('data-theme', theme);
+            }, [theme]);
+
+            const handleImageProcess = (file) => {
+                if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = () => {
                         setImage(reader.result);
@@ -188,24 +237,67 @@
                 }
             };
 
-            const handleShare = async () => {
-                const canvas = await html2canvas(resultRef.current);
+            const onDrop = (e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const file = e.dataTransfer.files[0];
+                handleImageProcess(file);
+            };
+
+            const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+
+            const handleSaveImage = async () => {
+                const canvas = await html2canvas(resultRef.current, {
+                    backgroundColor: theme === 'dark' ? '#000000' : '#ffffff'
+                });
                 const link = document.createElement('a');
-                link.download = 'my-fortune.png';
+                link.download = 'my-wealth-fortune.png';
                 link.href = canvas.toDataURL();
                 link.click();
             };
 
+            const handleShare = async () => {
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'AI 재물복 판독기 결과',
+                            text: `나의 재물운 점수는 ${result.score}점! 당신의 부자 기운을 확인해보세요.`,
+                            url: window.location.href,
+                        });
+                    } catch (err) {
+                        console.log('Error sharing:', err);
+                    }
+                } else {
+                    alert('공유하기를 지원하지 않는 브라우저입니다. 결과 이미지를 저장하여 공유해 주세요!');
+                }
+            };
+
             return (
                 <div className="container">
+                    <button className="theme-toggle" onClick={toggleTheme}>
+                        {theme === 'dark' ? '☀️' : '🌙'}
+                    </button>
+                    
                     <h1>AI 재물복 판독기</h1>
                     <p className="subtitle">얼굴 속 부자의 기운을 지금 바로 확인하세요</p>
 
                     {!image && (
-                        <div className="upload-area" onClick={() => fileInputRef.current.click()}>
+                        <div 
+                            className={`upload-area ${isDragging ? 'drag-over' : ''}`}
+                            onClick={() => fileInputRef.current.click()}
+                            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                            onDragLeave={() => setIsDragging(false)}
+                            onDrop={onDrop}
+                        >
                             <div style={{fontSize: '3rem', marginBottom: '10px'}}>📸</div>
-                            <p>사진을 업로드하여 분석 시작</p>
-                            <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                            <p>사진을 업로드하거나 여기로 드래그하세요</p>
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                onChange={(e) => handleImageProcess(e.target.files[0])} 
+                                accept="image/*" 
+                                className="hidden" 
+                            />
                         </div>
                     )}
 
@@ -224,8 +316,9 @@
                             <div className="investment-type">{result.type}</div>
                             <p className="advice">{result.advice}</p>
                             <div className="btn-group">
-                                <button className="btn btn-primary" onClick={handleShare}>결과 저장</button>
-                                <button className="btn btn-secondary" onClick={() => {setImage(null); setResult(null);}}>다시하기</button>
+                                <button className="btn btn-primary" onClick={handleSaveImage}>이미지 저장</button>
+                                <button className="btn btn-secondary" onClick={handleShare}>결과 공유</button>
+                                <button className="btn btn-outline" onClick={() => {setImage(null); setResult(null);}}>다시하기</button>
                             </div>
                         </div>
                     )}
