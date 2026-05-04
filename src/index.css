@@ -16,10 +16,12 @@
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  justify-content: center;
+  align-items: flex-start;
   min-width: 320px;
   min-height: 100vh;
   background-color: #000000;
+  padding-top: 5vh;
 }
 
 #root {
