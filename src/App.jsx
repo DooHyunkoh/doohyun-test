@@ -4,19 +4,22 @@ import './App.css';
 
 const RESULTS = [
   {
-    type: '주식/코인형 (Aggressive)',
+    type: '용모수려한 주식/코인 투자자',
     score: 95,
-    advice: '당신은 차트를 꿰뚫어 보는 "매의 눈"을 가졌군요. 시장의 변동성을 즐기며 단기 주식 매매나 코인 투자에서 큰 수익을 거둘 관상입니다. 과감한 결단력이 당신의 가장 큰 무기입니다.',
+    wealthLuck: '전체적인 이목구비의 조화가 뛰어나 타고난 재물운이 매우 강력합니다.\n특히 이마에서 뿜어져 나오는 기운이 좋아 중년 이후 큰 부를 축적할 명조입니다.',
+    investmentAdvice: '당신은 차트를 꿰뚫어 보는 "매의 눈"을 가졌군요. 눈매가 날카롭고 눈동자가 맑아 시장의 변동성을 즐기며 단기 주식 매매나 코인 투자에서 큰 수익을 거둘 관상입니다. 코끝이 도톰하여 재물을 모으는 힘이 강하므로, 공격적인 투자 후 수익을 빠르게 실현하여 자산을 굳히는 전략이 유리합니다. 과감한 결단력이 당신의 가장 큰 무기입니다.',
   },
   {
-    type: '부동산/금형 (Stable)',
+    type: '안정적인 부동산/금 자산가',
     score: 88,
-    advice: '덕망 있고 차분한 인상입니다. 시간이 지날수록 가치가 오르는 자산에 운이 따릅니다. 부동산이나 금과 같은 안정적인 투자처에서 당신의 재물운이 꽃을 피울 것입니다. 장기적인 안목이 훌륭하시네요.',
+    wealthLuck: '덕망 있고 차분한 인상에서 나오는 안정적인 기운이 돋보입니다.\n입꼬리가 살짝 올라가 있어 들어온 재물이 쉽게 나가지 않는 수성(守成)의 운세입니다.',
+    investmentAdvice: '귀가 두툼하고 귓볼이 아래로 향해 있어 인내심이 강한 관상입니다. 시간이 지날수록 가치가 오르는 자산에 운이 따르므로, 부동산이나 금과 같은 실물 자산 투자에서 당신의 재물운이 꽃을 피울 것입니다. 눈썹 사이가 넓어 마음이 여유로우니 조급한 단타보다는 5년 이상의 장기적인 안목으로 우량 자산을 선점하는 것이 부자가 되는 지름길입니다.',
   },
   {
-    type: '자수성가형 (Energetic)',
+    type: '열정적인 자수성가형 사업가',
     score: 92,
-    advice: '끊임없는 에너지와 도전 정신이 얼굴에 나타나 있습니다. 스스로 기회를 창출하고 사업을 통해 막대한 부를 쌓을 관상입니다. 올해는 서쪽에서 귀인이 나타나 당신의 성공을 도울 운세입니다.',
+    wealthLuck: '끊임없는 에너지와 도전 정신이 턱의 기운과 광대뼈에서 나타나 있습니다.\n스스로 기회를 창출하고 사업을 통해 막대한 부를 쌓을 수 있는 강력한 활동력을 가진 관상입니다.',
+    investmentAdvice: '광대뼈가 적당히 솟아 있어 인복이 많고 사람을 이끄는 힘이 강합니다. 시스템을 구축하는 사업이나 스타트업 투자를 통해 레버리지를 활용하는 것이 좋습니다. 법령(팔자주름)이 뚜렷하여 사회적 지위와 명예가 따르니, 자신의 브랜드를 구축하거나 전문 분야에서 창업을 한다면 서쪽에서 나타나는 귀인의 도움으로 큰 성공을 거둘 것입니다.',
   },
 ];
 
@@ -61,7 +64,7 @@ function App() {
     if (resultRef.current) {
       const canvas = await html2canvas(resultRef.current);
       const link = document.createElement('a');
-      link.download = 'my-fortune.png';
+      link.download = 'my-wealth-fortune.png';
       link.href = canvas.toDataURL();
       link.click();
     }
@@ -114,9 +117,18 @@ function App() {
             <div className="result-content">
               <div className="score-badge">재물운 점수: {result.score}점</div>
               <div className="investment-type">{result.type}</div>
-              <p className="advice">{result.advice}</p>
               
-              <div className="btn-group">
+              <section className="result-section">
+                <h3>💰 재물운 분석</h3>
+                <p className="wealth-luck">{result.wealthLuck}</p>
+              </section>
+
+              <section className="result-section">
+                <h3>📈 관상학적 투자 조언</h3>
+                <p className="investment-advice">{result.investmentAdvice}</p>
+              </section>
+              
+              <div className="btn-group no-capture">
                 <button className="btn btn-primary" onClick={handleShare}>결과 저장하기</button>
                 <button className="btn btn-secondary" onClick={reset}>다시 테스트하기</button>
               </div>
@@ -125,7 +137,7 @@ function App() {
         )}
       </main>
 
-      <footer style={{ marginTop: '3rem', color: '#444', fontSize: '0.8rem' }}>
+      <footer style={{ marginTop: '3rem', color: '#888', fontSize: '0.8rem' }}>
         <p>© 2026 AI Wealth Fortune Reader. No images are stored on our server.</p>
       </footer>
     </div>
